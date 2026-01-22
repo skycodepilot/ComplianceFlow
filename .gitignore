@@ -1,0 +1,28 @@
+# --- .NET ---
+[Bb]in/
+[Oo]bj/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+*.db
+*.lock.json
+
+# --- Angular / Node ---
+node_modules/
+dist/
+.angular/
+.cache/
+npm-debug.log
+yarn-error.log
+test-report.xml
+.sass-cache/
+connect.lock
+coverage/
+libpeerconnection.log
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
