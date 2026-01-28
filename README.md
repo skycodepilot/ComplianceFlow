@@ -82,5 +82,18 @@ The API will automatically create the database schema on first run.
 * **ComplianceFlow.UI:** Lightweight Angular 21 dashboard using `manifest.service.ts` for polling.
 * **ComplianceFlow.IntegrationTests:** Full-stack tests using Testcontainers.
 
+## ⚠️ Troubleshooting & Lessons Learned
+
+### RabbitMQ "Guest" Credentials
+If you attempt to run the API or tests against a remote or misconfigured RabbitMQ instance, you may see `BrokerUnreachableException`.
+* **The Cause:** RabbitMQ's default `guest` user is restricted to **localhost connections only**.
+* **The Fix:**
+    * **Development:** We use `docker-compose` to ensure the API connects to RabbitMQ as `localhost` (port mapped).
+    * **Testing:** We explicitly use **Testcontainers** in the `IntegrationTests` project. This avoids the "guest" limitation and shared-state flakiness by spinning up a fresh, isolated broker for every test suite with dynamic credentials.
+
+### "Ghost" Messages (Namespace Issues)
+If the API sends a message but the Saga never picks it up (no error, just silence):
+* **Check the Namespace:** MassTransit routing relies on the full namespace (e.g., `ComplianceFlow.Contracts.Messages`). If you move a message class without updating the namespace, the routing key changes, and the message is lost.
+
 ---
 *Built as a reference architecture for Event-Driven Compliance Systems.*
