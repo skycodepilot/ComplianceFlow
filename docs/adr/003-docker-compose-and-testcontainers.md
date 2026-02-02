@@ -1,4 +1,4 @@
-# ADR 003: Docker Containers
+# ADR 003: Docker Compose And TestContainers
 
 **Status:** Accepted
 **Date:** 2026-02-02
@@ -16,10 +16,11 @@ The system must provide an easily-deployable infrastructure for development and 
 * **Traditional On-Prem Or Cloud:** Standardized development equipment and hosting norms for app / database development.
 
 ## Decision Outcome
-We chose to implement **Docker** to provide a consistent and reliable development environment for both the business layer and the database table(s) required.
+We chose to implement **Docker Compose** for consistent *local development infrastructure* (SQL / RabbitMQ) and **Testcontainers** for integration testing.
 
 1.  **Business Layer / Server-Side Logic:** Docker as a means of standardizing development and preventing server-side "it works on my machine" issues during local dev.
 2.  **Separation Of Concerns:** Docker-ized server-side work keeps front-end implementations totally removed, allowing separation of concerns and also to let different teams drive front and back-end development.
+3.  **Testcontainers:** For integration testing; crucial because it spins up disposable infrastructure for **every** test run, solving "Shared State" and "Port Conflict" issues.
 
 ## Pros and Cons of the Options
 
@@ -27,3 +28,4 @@ We chose to implement **Docker** to provide a consistent and reliable developmen
 * **Good:** Expectation-leveling to remove concerns of local environment issues during development.
 * **Good:** Allows faster paths to integration tests of server-side components.
 * **Bad:** Developers need to remember that smoke testing requires separate setup from integration tests.
+* **Bad:** Requires strict port management (e.g., the RabbitMQ Guest/Localhost restriction) compared to Testcontainers' dynamic port mapping.

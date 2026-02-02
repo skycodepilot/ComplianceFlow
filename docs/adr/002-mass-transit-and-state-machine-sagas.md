@@ -6,7 +6,7 @@
 **Technical Story:** N/A
 
 ## Context and Problem Statement
-Since compliance checks require a multi-step process, the system must prevent workflows from being inefficient and must reject compliance if the workflow fails at any step. A compliance check where the code is received - but that fails at any other step - might produce confusing logs or audit trails; either the entire compliance check must pass, or it will fail.
+The system must validate manifests against against international trade laws (HTS Codes), which may require multiple external data sources or services in the future.
 
 ## Decision Drivers
 * Need to protect entire compliance workflow
@@ -18,7 +18,7 @@ Since compliance checks require a multi-step process, the system must prevent wo
 * **Pub/Sub:** Use Pub/Sub model to encourage async / decoupled communication.
 
 ## Decision Outcome
-We chose to implement **Mass Transit** and **State Machine Sagas** to create a more-solid compliance workflow.
+We chose the Orchestration Pattern using **Mass Transit State Machines**. This centralizes the logic for "Reference Validation" and "HTS Code Validation" into a single definition, allowing us to easily add steps (like "Sanctions Check") later without breaking existing consumers.
 
 1.  **Mass Transit:** Pairing Mass Transit with RabbitMQ provides asynchronous, loosely-coupled messaging and helps create resilient, scalable experiences.
 2.  **State Machine Sagas:** This pattern is ideal for workflows like flight booking, order processing, or payment systems where multiple services must coordinate asynchronously while maintaining eventual consistency.

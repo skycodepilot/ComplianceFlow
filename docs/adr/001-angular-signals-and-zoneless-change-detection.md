@@ -6,11 +6,12 @@
 **Technical Story:** N/A
 
 ## Context and Problem Statement
-The system must allow compliance-checking workflows to handle code check requests in a performant manner without bogged-down UI update / refresh cycles (which would happen with more-traditional front-end / back-end communication protocols).
+The system must decouple the UI from back-end processing, and allow compliance-checking workflows to handle code check requests in a performant manner without bogged-down UI update / refresh cycles (which would happen with more-traditional front-end / back-end communication protocols).
 
 ## Decision Drivers
 * Need to support low-latency, high-performance UI work.
 * Need to keep UI responsive and avoid excessive / unnecessary change detection.
+* Need to simplify state management for asynchronous polling mechanisms.
 
 ## Considered Options
 * **Refactored Component Classes:** Work within existing Angular components / frameworks to optimize normal Angular UI / network traffic.
@@ -18,7 +19,7 @@ The system must allow compliance-checking workflows to handle code check request
 * **Signals:** Use Angular Signals and Zoneless Change Detection to remove unnecessary pipeline activities.
 
 ## Decision Outcome
-We chose to implement a **Angular 21 Signals** and **Zoneless Change Detection** to optimize front-end performance.
+We chose **Angular 21 Signals** to manage the asynchronous "Manifest State." Since the backend is event-driven, the UI must poll for status updates. Signals allow us to reactively update the UI from "Submitted" to "Validated" without the overhead of `Zone.js` tracking every polling HTTP request, significantly reducing browser CPU usage during wait times.
 
 1.  **Angular Signals:** Unlike the traditional zone.js-based system, which triggers full component tree checks after any change, signals allow Angular to identify exactly where and what has changed, updating only the affected UI parts.
 2.  **Zoneless Change Detection:** With signals, Angular can move toward zoneless execution, removing the overhead of zone.js and enabling faster, more predictable updates—especially critical in large, real-time applications like dashboards or data grids.
