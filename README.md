@@ -95,5 +95,11 @@ If you attempt to run the API or tests against a remote or misconfigured RabbitM
 If the API sends a message but the Saga never picks it up (no error, just silence):
 * **Check the Namespace:** MassTransit routing relies on the full namespace (e.g., `ComplianceFlow.Contracts.Messages`). If you move a message class without updating the namespace, the routing key changes, and the message is lost.
 
+### MassTransit Retry Policy
+Added a retry policy to the Saga configuration to handle transient errors (e.g., database timeouts). 
+* **The Cause:** If SQL Server "blips" or RabbitMQ hiccups when the Saga wants to save state, the message will fail.
+* **The Fix:** We configure a retry policy in MassTransit that tells the consumer: "If you crash, wait and try again. Do this 3 times before you give up."
+
+This ensures that if a step fails, MassTransit will automatically retry the message processing according to the defined policy.
 ---
 *Built as a reference architecture for Event-Driven Compliance Systems.*
