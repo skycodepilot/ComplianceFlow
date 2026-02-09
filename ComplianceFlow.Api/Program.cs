@@ -13,12 +13,12 @@ builder.Services.AddMassTransit(x =>
 {
     x.AddConsumers(typeof(Program).Assembly);
     
-    // 1. REGISTER THE STATE MACHINE
+    // REGISTER THE STATE MACHINE
     // "Hey MassTransit, here is the Logic (Machine) and the Storage (State)."
     x.AddSagaStateMachine<ManifestStateMachine, ManifestState> ()
         .EntityFrameworkRepository(r =>
         {
-            // 2. Configure SQL Server
+            // Configure SQL Server
             r.ExistingDbContext<ManifestSagaDbContext>();
             r.UseSqlServer(); // Locking strategy for SQL
         });
@@ -49,13 +49,24 @@ builder.Services.AddMassTransit(x =>
             });
         }
 
-        // 3. AUTO-CONFIGURE ENDPOINTS
+        // CONFIGURE RETRIES
+        cfg.UseMessageRetry(r =>
+        {
+            // Try 3 times, waiting 1s, 2s, then 5s
+            r.Intervals(1000, 2000, 5000);
+
+            // Optional: Ignore specific exceptions that shouldn't be retried
+            // (e.g. "invalid data" which will never pass)
+            r.Ignore<ArgumentException>();
+        });
+
+        // AUTO-CONFIGURE ENDPOINTS
         // This is crucial. It creates the queues for the Saga automatically.
         cfg.ConfigureEndpoints(context);
     });
 });
 
-// 4. REGISTER THE DB CONTEXT (Standard EF Core work)
+// REGISTER THE DB CONTEXT (Standard EF Core work)
 // We pull the connection string from config (which we will set in a moment).
 builder.Services.AddDbContext<ManifestSagaDbContext>(options =>
 {
